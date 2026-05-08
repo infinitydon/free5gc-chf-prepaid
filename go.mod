@@ -1,6 +1,6 @@
 module github.com/free5gc/chf
 
-go 1.25.5
+go 1.26.2
 
 require (
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
@@ -9,8 +9,8 @@ require (
 	github.com/fclairamb/ftpserverlib v0.21.0
 	github.com/fclairamb/go-log v0.4.1
 	github.com/fiorix/go-diameter v3.0.2+incompatible
-	github.com/free5gc/openapi v1.2.3
-	github.com/free5gc/util v1.3.2-0.20260331093717-98c25b027c49
+	github.com/free5gc/openapi v1.2.4
+	github.com/free5gc/util v1.3.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
 	github.com/ishidawataru/sctp v0.0.0-20230406120618-7ff4192f6ff2 // indirect
@@ -47,9 +47,9 @@ require (
 	github.com/fclairamb/afero-s3 v0.3.1 // indirect
 	github.com/fclairamb/afero-snd v0.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/free5gc/aper v1.1.0 // indirect
-	github.com/free5gc/nas v1.2.2 // indirect
-	github.com/free5gc/ngap v1.1.2 // indirect
+	github.com/free5gc/aper v1.1.1 // indirect
+	github.com/free5gc/nas v1.2.3 // indirect
+	github.com/free5gc/ngap v1.1.3 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
