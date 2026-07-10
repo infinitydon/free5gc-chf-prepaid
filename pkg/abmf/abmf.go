@@ -144,6 +144,9 @@ func handleCCR() diam.HandlerFunc {
 			logger.AcctLog.Errorf("srtconv ParseInt error: %+v", err)
 			return
 		}
+		if quota < 0 {
+			quota = 0
+		}
 
 		switch ccr.RequestedAction {
 		case charging_datatype.CHECK_BALANCE:
@@ -212,12 +215,14 @@ func handleCCR() diam.HandlerFunc {
 
 		logger.AcctLog.Infof("UE [%s], Rating group [%d], quota [%d]", subscriberId, rg, quota)
 
-		chargingBsonM := make(bson.M)
-		chargingBsonM["quota"] = strconv.FormatInt(quota, 10)
+		quotaStr = strconv.FormatInt(quota, 10)
+		chargingBsonM := bson.M(chargingInterface)
+		chargingBsonM["quota"] = quotaStr
 		logger.AcctLog.Warnln("quota:", quota)
 		if _, err1 := mongoapi.RestfulAPIPutOne(chargingDatasColl, filter, chargingBsonM); err1 != nil {
 			logger.AcctLog.Errorf("RestfulAPIPutOne err: %+v", err1)
 		}
+		mirrorPersistentBalance(subscriberId, chargingBsonM, quotaStr)
 
 		a := m.Answer(diam.Success)
 
@@ -232,6 +237,36 @@ func handleCCR() diam.HandlerFunc {
 				c.RemoteAddr(), err, a)
 			return
 		}
+	}
+}
+
+func mirrorPersistentBalance(subscriberId string, activeChargingData bson.M, quotaStr string) {
+	snssai, okSnssai := activeChargingData["snssai"].(string)
+	dnn, okDnn := activeChargingData["dnn"].(string)
+	filterValue, okFilter := activeChargingData["filter"].(string)
+	if !okSnssai || !okDnn || !okFilter {
+		return
+	}
+
+	baseFilter := bson.M{
+		"ueId":   subscriberId,
+		"snssai": snssai,
+		"dnn":    dnn,
+		"filter": filterValue,
+	}
+	queryStrength := 2
+	baseChargingData, err := mongoapi.RestfulAPIGetOne(chargingDatasColl, baseFilter, queryStrength)
+	if err != nil || baseChargingData == nil {
+		logger.AcctLog.Warnf("persistent charging balance not found for UE[%s] snssai[%s] dnn[%s] filter[%s]: %v",
+			subscriberId, snssai, dnn, filterValue, err)
+		return
+	}
+
+	baseBsonM := bson.M(baseChargingData)
+	delete(baseBsonM, "ratingGroup")
+	baseBsonM["quota"] = quotaStr
+	if _, err = mongoapi.RestfulAPIPutOne(chargingDatasColl, baseFilter, baseBsonM, queryStrength); err != nil {
+		logger.AcctLog.Errorf("failed to mirror persistent charging balance: %+v", err)
 	}
 }
 
