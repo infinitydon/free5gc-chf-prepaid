@@ -14,6 +14,7 @@ WORKDIR /free5gc
 COPY --from=builder /out/chf ./chf
 RUN addgroup -g 1000 free5gc && \
     adduser -D -u 1000 -G free5gc free5gc && \
+    ln -s /free5gc/nrf-cert /free5gc/cert && \
     chown -R free5gc:free5gc /free5gc
 USER 1000:1000
 
