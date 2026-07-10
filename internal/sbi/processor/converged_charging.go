@@ -680,7 +680,12 @@ func sessionChargingReservation(
 
 			ue.UnitCost[rg] = getUnitCost(ue, rg, sur)
 
+			reservedUnit := uint32(0)
+			if ue.UnitCost[rg] > 0 && ue.ReservedQuota[rg] > 0 {
+				reservedUnit = uint32(uint64(ue.ReservedQuota[rg]) / uint64(ue.UnitCost[rg]))
+			}
 			grantedUnit := min(uint32(serviceUsageRsp.ServiceRating.AllowedUnits), requestedTotalVolume)
+			grantedUnit = min(grantedUnit, reservedUnit)
 
 			if ue.RatingType[rg] == charging_datatype.REQ_SUBTYPE_RESERVE {
 				unitInformation.Triggers = append(unitInformation.Triggers,
